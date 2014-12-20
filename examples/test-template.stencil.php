@@ -6,15 +6,15 @@
 <body>
 <h1>Why</h1>
 
-@{$test = %}
 
-@{$test}
+@{/* set some variable */}
+@{$test = 1+2}
+
+<h1>@{=$test}</h1>
+
 
 <?php
-$i = 0;
-for ($i = 0; $i < 10; $i++) {
-    echo "test";
-}
+// Test ..
 ?>
 </body>
 </html>
