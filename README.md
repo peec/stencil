@@ -87,7 +87,12 @@ FilterChainer::appendFilter('truncate', function ($value, $length = 10, $suffix 
 and use it like so:
 
 ```
-{{"Hello world! This is actually more then 10 characters and will be cutted in output"}->truncate(10, '...')}
+{{"Hello world! This is actually more then 10 chars"}->truncate(10, '...')}
+
+will produce:
+
+> Hello worl...
+
 ```
 
 
