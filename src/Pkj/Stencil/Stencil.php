@@ -10,47 +10,34 @@ namespace Pkj\Stencil;
 
 
 class Stencil {
-    private $tokens;
+    protected static $_instance;
 
-    public function __construct ($str) {
-        $this->tokens = $this->getTokens($str);
+    private $cacheAdapter;
+
+    public function setCacheAdapter (CacheAdapterInterface $cacheAdapter) {
+        $this->cacheAdapter = $cacheAdapter;
+        return $this;
     }
 
-    static public function resource ($file) {
-        return new self(file_get_contents($file));
+    protected function __construct() {
+        FilterChainer::appendSetupFilter('raw', function ($filterChainer) {
+            $filterChainer->preEscape = false;
+        });
     }
 
-    public function render (array $vars = array()) {
-        $runnable = '';
-        /** @var TokenObject $token */
-        foreach($this->tokens as $token) {
-            switch($token->getToken()) {
-                case T_INLINE_HTML:
-                    $exprParser = new ExpressionParser($token->getValue());
-                    $runnable .= $exprParser->parse();
-                    break;
-                default:
-                    $runnable .= $token->getValue();
-            }
+    public static function getInstance()
+    {
+        if( self::$_instance === NULL ) {
+            self::$_instance = new self();
         }
-        return $this->evalCode($runnable, $vars);
+        return self::$_instance;
     }
 
-    private function getTokens ($str) {
-        $tok = array();
-        $tokens = token_get_all($str);
-        foreach($tokens as $t) {
-            $tok[] = new TokenObject($t);
-        }
-        return $tok;
+
+    public function resource ($file) {
+        return new Resource(file_get_contents($file), $file, $this->cacheAdapter);
     }
 
-    private function evalCode ($runnable, array $vars = array()) {
-        ob_start();
-        extract($vars);
-        eval("?>$runnable");
-        return ob_get_clean();
-    }
 
 
 } 
